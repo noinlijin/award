@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fastlemon Get</title>
+
+<link href="style.css" rel="stylesheet" type="text/css">
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+
+<script type="text/javascript" src="js/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+
+<script type="text/javascript" src="js/awardRotate.js"></script>
+
+<script type="text/javascript">
+var turnplate={
+		restaraunts:[],
+		colors:[],
+		outsideRadius:192,
+		textRadius:155,
+		insideRadius:68,
+		startAngle:0,
+		
+		bRotate:false
+};
+
+$(document).ready(function(){
+	turnplate.restaraunts = ["500M Data", "$10", "Thanks", "$5", " 1GB  Data", "  2GB  Data", "$20", "  3G   Data", "  10G  Data", "$2"];
+	turnplate.colors = ["#FFF4D6", "#FFFFFF", "#FFF4D6", "#FFFFFF","#FFF4D6", "#FFFFFF", "#FFF4D6", "#FFFFFF","#FFF4D6", "#FFFFFF"];
+
+	
+	var rotateTimeOut = function (){
+		$('#wheelcanvas').rotate({
+			angle:0,
+			animateTo:2160,
+			duration:8000,
+			callback:function (){
+				alert('Network timeout. Please check your network settings！');
+			}
+		});
+	};
+
+	var rotateFn = function (item, txt){
+		var angles = item * (360 / turnplate.restaraunts.length) - (360 / (turnplate.restaraunts.length*2));
+		if(angles<270){
+			angles = 270 - angles; 
+		}else{
+			angles = 360 - angles + 270;
+		}
+		$('#wheelcanvas').stopRotate();
+		$('#wheelcanvas').rotate({
+			angle:0,
+			animateTo:angles+1800,
+			duration:8000,
+			callback:function (){
+                $('#myModal').modal('toggle')
+				turnplate.bRotate = !turnplate.bRotate;
+			}
+		});
+	};
+
+	$('.pointer').click(function (){
+		if(turnplate.bRotate)return;
+		turnplate.bRotate = !turnplate.bRotate;
+		var item = rnd(1,turnplate.restaraunts.length);
+        item = 1
+		rotateFn(item, turnplate.restaraunts[item-1]);
+		/* switch (item) {
+			case 1:
+				rotateFn(252, turnplate.restaraunts[0]);
+				break;
+			case 2:
+				rotateFn(216, turnplate.restaraunts[1]);
+				break;
+			case 3:
+				rotateFn(180, turnplate.restaraunts[2]);
+				break;
+			case 4:
+				rotateFn(144, turnplate.restaraunts[3]);
+				break;
+			case 5:
+				rotateFn(108, turnplate.restaraunts[4]);
+				break;
+			case 6:
+				rotateFn(72, turnplate.restaraunts[5]);
+				break;
+			case 7:
+				rotateFn(36, turnplate.restaraunts[6]);
+				break;
+			case 8:
+				rotateFn(360, turnplate.restaraunts[7]);
+				break;
+			case 9:
+				rotateFn(324, turnplate.restaraunts[8]);
+				break;
+			case 10:
+				rotateFn(288, turnplate.restaraunts[9]);
+				break;
+		} */
+		console.log(item);
+	});
+});
+
+function rnd(n, m){
+	var random = Math.floor(Math.random()*(m-n+1)+n);
+	return random;
+	
+}
+
+
+window.onload=function(){
+	drawRouletteWheel();
+};
+
+function drawRouletteWheel() {    
+  var canvas = document.getElementById("wheelcanvas");    
+  if (canvas.getContext) {
+	  var arc = Math.PI / (turnplate.restaraunts.length/2);
+	  var ctx = canvas.getContext("2d");
+	  ctx.clearRect(0,0,422,422);
+	  ctx.strokeStyle = "#FFBE04";
+	  ctx.font = '16px Microsoft YaHei';
+	  for(var i = 0; i < turnplate.restaraunts.length; i++) {       
+		  var angle = turnplate.startAngle + i * arc;
+		  ctx.fillStyle = turnplate.colors[i];
+		  ctx.beginPath();
+		  ctx.arc(211, 211, turnplate.outsideRadius, angle, angle + arc, false);
+		  ctx.arc(211, 211, turnplate.insideRadius, angle + arc, angle, true);
+		  ctx.stroke();  
+		  ctx.fill();
+		  ctx.save();
+		  
+		  ctx.fillStyle = "#E5302F";
+		  var text = turnplate.restaraunts[i];
+		  var line_height = 17;
+		  ctx.translate(211 + Math.cos(angle + arc / 2) * turnplate.textRadius, 211 + Math.sin(angle + arc / 2) * turnplate.textRadius);
+		  
+		  ctx.rotate(angle + arc / 2 + Math.PI / 2);
+
+		  if(text.indexOf("M")>0){
+			  var texts = text.split("M");
+			  for(var j = 0; j<texts.length; j++){
+				  ctx.font = j == 0?'bold 20px Microsoft YaHei':'16px Microsoft YaHei';
+				  if(j == 0){
+					  ctx.fillText(texts[j]+"M", -ctx.measureText(texts[j]+"M").width / 2, j * line_height);
+				  }else{
+					  ctx.fillText(texts[j], -ctx.measureText(texts[j]).width / 2, j * line_height);
+				  }
+			  }
+		  }else if(text.indexOf("M") == -1 && text.length>6){
+			  text = text.substring(0,6)+"||"+text.substring(6);
+			  var texts = text.split("||");
+			  for(var j = 0; j<texts.length; j++){
+				  ctx.fillText(texts[j], -ctx.measureText(texts[j]).width / 2, j * line_height);
+			  }
+		  }else{
+			  ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+		  }
+		  
+		  if(text.indexOf("$")>0){
+			  var img= document.getElementById("shan-img");
+			  img.onload=function(){  
+				  ctx.drawImage(img,-15,10);      
+			  }; 
+			  ctx.drawImage(img,-15,10);  
+		  }else if(text.indexOf("Thanks")>=0){
+			  var img= document.getElementById("sorry-img");
+			  img.onload=function(){  
+				  ctx.drawImage(img,-15,10);      
+			  };  
+			  ctx.drawImage(img,-15,10);  
+		  }
+		  ctx.restore();
+	  }
+  } 
+}
+
+</script>
+</head>
+<body style="background:#10B5A7;overflow-x:hidden;">
+    <img src="images/1.png" id="shan-img" style="display:none;" />
+    <img src="images/2.png" id="sorry-img" style="display:none;" />
+	<div class="banner">
+		<div class="turnplate" style="background-image:url(images/turnplate-bg.png);background-size:100% 100%;">
+			<canvas class="item" id="wheelcanvas" width="422px" height="422px"></canvas>
+			<img class="pointer" src="images/turnplate-pointer.png"/>
+		</div>
+	</div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Congratulation</h4>
+                </div>
+                <div class="modal-body">
+                    You get Fastlemon VPN 500M free data
+                </div>
+                <div class="modal-footer">
+                    <a href="https://itunes.apple.com/app/id1154356029" role="button" class="btn btn-success ">Get</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
